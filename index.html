@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <title>Ledger</title>
+
+        <!-- Yes, I'm using JQuery on purpose, in 2024.
+            This works, and it's a lot less code than the 271MB that gets pulled down when I do "npx create-react-app". This is leaner, and meaner, and it just works.
+            "Just works" is a part of developer experience that people seem to have just forgotten. Or, modern JS devs never really knew about it because they're too young to remember 15 years ago.
+            JQuery master race.
+        -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.min.js" integrity="sha256-Fb0zP4jE3JHqu+IBB9YktLcSjI1Zc6J2b6gTjB0LpoM=" crossorigin="anonymous"></script>
+
+        <!-- Plain old Bootstrap, because we don't care about "branding" wankery. -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    </head>
+    <body>
+        <div id="loadState">
+        Upload a ledger datafile.
+        <input accept="text/json" type="file" id="ledgerUpload" value="Upload ledger file" oninput="handleFileSelected(this)"/>
+        or <a onclick="initState()">clear state to default starting state</a>
+</div>
+
+        <h1>Ledger</h1>
+        <table class="table table-striped">
+            <thead>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Income</th>
+                <th>Expense</th>
+            </thead>
+            <tbody id="ledger"></tbody>
+        </table>
+
+        <script>
+let ledger = []; // Global var.
+
+async function handleFileSelected(event) {
+    let file = event.files[0];
+    let body = await file.text();
+}
+
+function initState() {
+    ledger = [];
+    ledger = [
+    {
+        name: "salary",
+        income: 2200,
+        time: "2020-01-15"
+    },
+        {
+name: "groceries",
+        expense: 5.31,
+        time: "2020-01-01"
+    }
+];
+ledger.forEach((val) => { val.unixtime = Date.parse(val.time) })
+ledger.sort((a, b) => a.unixtime - b.unixtime )
+    rePrintLedger();
+    hideLoadStateDiv();
+}
+
+// Hide the load state div once the state has been loaded, so that it doesn't use up screenspace.
+function hideLoadStateDiv() {
+    $("#loadState").hide();
+}
+
+function rePrintLedger() {
+    let showLedger = $("#ledger");
+    showLedger.empty();
+    ledger.forEach((val) => {
+        let html = `<tr>
+            <td> ${val.time} </td>
+            <td>${val.name}</td>
+            <td>${val.income ?? ""}</td>
+            <td>${val.expense ?? ""}</td>
+            </tr> `;
+        showLedger.append(html);
+    })
+}
+
+        </script>
+    </body>
+</html>
