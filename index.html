@@ -15,10 +15,10 @@
     </head>
     <body>
         <div id="loadState">
-        Upload a ledger datafile.
-        <input accept="text/json" type="file" id="ledgerUpload" value="Upload ledger file" oninput="handleFileSelected(this)"/>
-        or <a onclick="initState()">clear state to default starting state</a>
-</div>
+            Upload a ledger datafile.
+            <input accept="text/json" type="file" id="ledgerUpload" value="Upload ledger file" oninput="handleFileSelected(this)"/>
+            or <a onclick="initState()">clear state to default starting state</a>
+        </div>
 
         <h1>Ledger</h1>
         <table class="table table-striped">
@@ -27,56 +27,83 @@
                 <th>Name</th>
                 <th>Income</th>
                 <th>Expense</th>
+                <!--
+
+                TODO Add a balance calculation here, and have the ledger data structure
+                 keep track of balances.
+
+                TODO Add a "collapse" button that will find (example groceries) an older
+                entry with the same "name", and then merge "this" entry with that one,
+                deleting this entry, and adjusting the income-or-expense of that one. This
+                will help reduce the sheer number of small transactions (like for groceries
+                or dining).
+
+                 -->
             </thead>
             <tbody id="ledger"></tbody>
         </table>
 
+        <!--
+
+        TODO Add a form that takes in [name date income expense]
+         and inserts it into the ledger array in the right place, based on date.
+
+         TODO Have the form pinned to the bottom of the page, so that a user can scroll up
+         the ledger and see where they want something added, and add it at that point, and
+         the view doesn't shift. We don't want to scroll to the bottom of the the page to
+         where the form is.
+
+         TODO When an insert is done, calc the balance at that point in the datastructure
+         and for all entries after it.
+
+         -->
+
         <script>
-let ledger = []; // Global var.
+            let ledger = []; // Global var.
 
-async function handleFileSelected(event) {
-    let file = event.files[0];
-    let body = await file.text();
-}
+            async function handleFileSelected(event) {
+                let file = event.files[0];
+                let body = await file.text();
+            }
 
-function initState() {
-    ledger = [];
-    ledger = [
-    {
-        name: "salary",
-        income: 2200,
-        time: "2020-01-15"
-    },
-        {
-name: "groceries",
-        expense: 5.31,
-        time: "2020-01-01"
-    }
-];
-ledger.forEach((val) => { val.unixtime = Date.parse(val.time) })
-ledger.sort((a, b) => a.unixtime - b.unixtime )
-    rePrintLedger();
-    hideLoadStateDiv();
-}
+            function initState() {
+                ledger = [];
+                ledger = [
+                {
+                    name: "salary",
+                    income: 2200,
+                    time: "2020-01-15"
+                },
+                {
+                    name: "groceries",
+                    expense: 5.31,
+                    time: "2020-01-01"
+                }
+            ];
+            ledger.forEach((val) => { val.unixtime = Date.parse(val.time) })
+            ledger.sort((a, b) => a.unixtime - b.unixtime )
+                rePrintLedger();
+                hideLoadStateDiv();
+            }
 
-// Hide the load state div once the state has been loaded, so that it doesn't use up screenspace.
-function hideLoadStateDiv() {
-    $("#loadState").hide();
-}
+            // Hide the load state div once the state has been loaded, so that it doesn't use up screenspace.
+            function hideLoadStateDiv() {
+                $("#loadState").hide();
+            }
 
-function rePrintLedger() {
-    let showLedger = $("#ledger");
-    showLedger.empty();
-    ledger.forEach((val) => {
-        let html = `<tr>
-            <td> ${val.time} </td>
-            <td>${val.name}</td>
-            <td>${val.income ?? ""}</td>
-            <td>${val.expense ?? ""}</td>
-            </tr> `;
-        showLedger.append(html);
-    })
-}
+            function rePrintLedger() {
+                let showLedger = $("#ledger");
+                showLedger.empty();
+                ledger.forEach((val) => {
+                    let html = `<tr>
+                        <td> ${val.time} </td>
+                        <td>${val.name}</td>
+                        <td>${val.income ?? ""}</td>
+                        <td>${val.expense ?? ""}</td>
+                        </tr> `;
+                    showLedger.append(html);
+                })
+            }
 
         </script>
     </body>
