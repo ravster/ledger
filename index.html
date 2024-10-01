@@ -43,10 +43,20 @@
             <tbody id="ledger"></tbody>
         </table>
 
-        <!--
+        <form onsubmit="addEntry(event)">
+            <input type="text" placeholder="Name" required minlength="1" />
+            <input type="number" placeholder="Amount" required step="0.01" />
+            <input type="date" required />
 
-        TODO Add a form that takes in [name date income expense]
-         and inserts it into the ledger array in the right place, based on date.
+            <input type="radio" name="income-or-expense" id="radio-income" value="income" required />
+            <label for="radio-income">Income</label>
+            <input type="radio" name="income-or-expense" id="radio-expense" value="expense" />
+            <label for="radio-expense">Expense</label>
+
+            <input type="submit" value="Submit" />
+        </form>
+
+        <!--
 
          TODO Have the form pinned to the bottom of the page, so that a user can scroll up
          the ledger and see where they want something added, and add it at that point, and
@@ -98,11 +108,57 @@
                     let html = `<tr>
                         <td> ${val.time} </td>
                         <td>${val.name}</td>
-                        <td>${val.income ?? ""}</td>
-                        <td>${val.expense ?? ""}</td>
+                        <td>${val.income || ""}</td>
+                        <td>${val.expense || ""}</td>
                         </tr> `;
                     showLedger.append(html);
                 })
+            }
+
+            function addEntry(event) {
+                event.preventDefault();
+
+                let form = event.target
+                let name = form[0].value;
+                let amount = form[1].valueAsNumber
+                let date = form[2].valueAsDate
+                let time = date.toISOString().slice(0,10)
+                let unixtime = date.getTime()
+                let income = form[3].checked && amount
+                let expense = form[4].checked && amount
+
+                let entry = {
+                    time,
+                    name,
+                    unixtime,
+                    income,
+                    expense
+                }
+
+                // We append, sort, and reprint. This is hilariously inefficient. Leaving
+                // this as-is for now to focus on feature-development instead.
+                // Modern browsers are stupid amounts of fast, so this might not actually
+                // affect UX till the page has a few thousand entries. Till it affects UX,
+                // this is just pointless optimization.
+                //
+                // I consider resource usage a moot point because I don't expect this webpage
+                // to ever consume more resources (battery, RAM, CPU) than everybody's
+                // Reddit homepage or even just one Google search.
+                //
+                // Instead of append + sort, we should instead insert the entry into the
+                // array in the right position. TODO optimization.
+                //
+                // Instead of reprinting the whole table, we should insert a new TR element
+                // at the right position. React and Vuejs really shine in a situation like
+                // this, and they use a "key" attribute on the entries to easily identify
+                // each one.
+                ledger.push(entry)
+                ledger.sort((a, b) => a.unixtime - b.unixtime)
+                rePrintLedger()
+
+                form.reset();
+
+                debugger
             }
 
         </script>
