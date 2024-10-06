@@ -43,7 +43,7 @@
             <tbody id="ledger"></tbody>
         </table>
 
-        <form onsubmit="addEntry(event)">
+        <form style="position: absolute; bottom: 0px; margin-left: 1em;" onsubmit="addEntry(event)">
             <input type="text" placeholder="Name" required minlength="1" />
             <input type="number" placeholder="Amount" required step="0.01" />
             <input type="date" required />
@@ -58,13 +58,11 @@
 
         <!--
 
-         TODO Have the form pinned to the bottom of the page, so that a user can scroll up
-         the ledger and see where they want something added, and add it at that point, and
-         the view doesn't shift. We don't want to scroll to the bottom of the the page to
-         where the form is.
-
          TODO When an insert is done, calc the balance at that point in the datastructure
          and for all entries after it.
+
+         TODO ⛙ &#9945; to merge an entry with an older one with the same name and income/
+         expense type.
 
          -->
 
