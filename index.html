@@ -88,11 +88,19 @@
         ledger = [];
         ledger = [
           {
+            key: 1,
             name: "salary",
             income: 2200,
             time: "2020-01-15"
           },
           {
+            key: 2,
+            name: "salary",
+            income: 100,
+            time: "2022-01-15"
+          },
+          {
+            key: 1,
             name: "groceries",
             expense: 5.31,
             time: "2020-01-01"
@@ -112,16 +120,75 @@
         $("#loadState").hide();
       }
 
-      function rePrintLedger() {
-        let showLedger = $("#ledger");
-        showLedger.empty();
-        ledger.forEach((val) => {
-          let html = `<tr>
+      function mergeUp() {
+        event.preventDefault();
+        let element = event.target;
+        let name = element.dataset.name;
+        let key = parseInt(element.dataset.key);
+        let thisEntryIndex = ledger.findIndex(x => x.name === name && x.key === key);
+        let thisEntry = ledger[thisEntryIndex];
+        let previousEntry = ledger.find(x => x.name === name && x.key === key - 1);
+        let mergingIncome = null;
+
+        // Check they are both credits or debits
+        if (!!thisEntry.income) {
+          if (!previousEntry.income) {
+            console.error("Non-matching income and expense", thisEntry, previousEntry);
+            return;
+          }
+          mergingIncome = true;
+        } else {
+          if (!previousEntry.expense) {
+            console.error("Non-matching income and expense", thisEntry, previousEntry);
+            return;
+          }
+          mergingIncome = false;
+        }
+        if (mergingIncome === null) {
+          console.error("mergingIncome is null. Epic fail.");
+        }
+
+        // Update previousEntry
+        let previousEntryDOM = document.querySelector(`a[data-key="${key - 1}"][data-name="${name}"]`).parentElement.parentElement // TODO extract find-entry-in-DOM to func.
+        if (!!mergingIncome) {
+          previousEntry.income += thisEntry.income;
+        } else {
+          previousEntry.expense += thisEntry.expense;
+        }
+        // TODO extract replace-entry-DOM
+        previousEntryDOM.insertAdjacentHTML("beforebegin", entryAsTr(previousEntry))
+        previousEntryDOM.remove()
+
+        // Delete thisEntry
+        ledger.splice(thisEntryIndex, 1) // From datastructure
+        // TODO extract to func delete-entry-dom
+        element.parentElement.parentElement.remove() // From DOM
+
+        // TODO Find all later entries with this name,
+        // Decrement their "key"
+        // Update DOMs to the lower "key"
+        // Decrement KEYMAX for this "name"
+      }
+
+      function entryAsTr(val) {
+        return `<tr>
             <td> ${val.time} </td>
             <td>${val.name}</td>
             <td>${val.income || ""}</td>
             <td>${val.expense || ""}</td>
-            </tr> `;
+            <td>
+              <a data-key="${val.key}" data-name="${val.name}"
+                href="#" onclick="mergeUp()"
+                title="Merge this entry into an older entry with the same name.">
+                &#8657;</a>
+            </td>
+            </tr> `
+      }
+      function rePrintLedger() {
+        let showLedger = $("#ledger");
+        showLedger.empty();
+        ledger.forEach((val) => {
+          let html = entryAsTr(val);
           showLedger.append(html);
         })
       }
@@ -175,8 +242,6 @@
         rePrintLedger()
 
         form.reset();
-
-        debugger
       }
 
     </script>
