@@ -83,6 +83,9 @@
           KEYMAXES[name] = 1;
         }
       }
+      function decrementKey(name) {
+        KEYMAXES[name] -= 1;
+      }
 
       function initState() {
         ledger = [];
@@ -98,6 +101,24 @@
             name: "salary",
             income: 100,
             time: "2022-01-15"
+          },
+          {
+            key: 3,
+            name: "salary",
+            income: 100,
+            time: "2022-02-15"
+          },
+          {
+            key: 4,
+            name: "salary",
+            income: 100,
+            time: "2022-03-15"
+          },
+          {
+            key: 5,
+            name: "salary",
+            income: 100,
+            time: "2022-04-15"
           },
           {
             key: 1,
@@ -164,10 +185,21 @@
         // TODO extract to func delete-entry-dom
         element.parentElement.parentElement.remove() // From DOM
 
-        // TODO Find all later entries with this name,
-        // Decrement their "key"
-        // Update DOMs to the lower "key"
-        // Decrement KEYMAX for this "name"
+        // Find all later entries with this name,
+        let laterEntries = ledger.filter(x => x.name === name && x.key > key);
+        // Decrement "key" in the ledger.
+        laterEntries.forEach((x) => {
+          x.key -= 1;
+        })
+        // Update "key" in the DOM.
+        let laterDoms = document.querySelectorAll(`a[data-name="${name}"]`)
+        laterDoms.forEach((x) => {
+          x_key = parseInt(x.dataset.key)
+          if (x_key < key) { return }
+
+          x.dataset.key = x_key - 1
+        })
+        decrementKey(name)
       }
 
       function entryAsTr(val) {
